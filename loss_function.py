@@ -1,26 +1,11 @@
-from __future__ import print_function, division
-import os
 import torch
 import torch.nn as nn
-
-import torch.nn.functional as F
-from torch.autograd import Variable
-import numpy as np
-import matplotlib.pyplot as plt
-from torch.utils.data import Dataset, DataLoader
-
-import tensorflow as tf
-from torchsummary import summary
-import pickle
-
-LS=16
 
 device=torch.device("cuda")
 def calculate_energy(lattice):
     lattice = 2 *np.pi*lattice
     xp =torch.Tensor(lattice.size()).to(device)
     yp =torch.Tensor(lattice.size()).to(device)
-
 
     for i in range(lattice.size(2)):
         xp[: ,: ,i ,: ] =torch.cos(lattice[: ,: ,( i +1 ) %lattice.size(2) ,: ] -lattice[: ,: ,i ,:])
@@ -42,7 +27,6 @@ def calculate_magnetisation(lattice):
 
 
 def loss_function(recon_x, x, mean, var, mu, logvar):
-#    LK = (torch.sum((torch.cos(2 * np.pi * x.view(-1,LS*LS)) -torch.cos(2 * np.pi * mean.view(-1,LS*LS)))**2)/x.size(0))#,reduction='mean')+F.mse_loss(torch.sin(2*np.pi*x),torch.sin(2*np.pi*mean),reduction='mean'))
     EN = LS*LS*torch.sum((calculate_energy(recon_x)- calculate_energy(x))**2)/x.size(0)#, reduction='mean')
     MAG = F.mse_loss(calculate_magnetisation(recon_x), calculate_magnetisation(x), reduction='sum') / x.size(0)
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) / x.size(0)

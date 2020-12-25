@@ -1,0 +1,9 @@
+---
+epochs : 1
+lr : 1e-3
+bs : 128
+data_path : "MCMC/lattices/lattices.npz"
+is_train : True
+lattice_size : 8
+model_save_path :"model/cnn_vae.pt"
+
