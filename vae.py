@@ -28,8 +28,8 @@ class VAE(nn.Module):
         )
         self.fc_decoder = nn.Sequential(nn.Linear(z_dim, 10), nn.ReLU(), nn.Linear(10, 32), nn.ReLU(), nn.Linear(32,self.h_dim),
                                   nn.ReLU())
-        self.mean_decoder = nn.Sequential(nn.ConvTranspose2d(16, channels, kernel_size=3, stride=1, padding=1))
-        self.logvar_decoder = nn.Sequential(nn.ConvTranspose2d(16, channels, kernel_size=3, stride=1, padding=1))
+        self.decoder = nn.Sequential(nn.ConvTranspose2d(16, channels, kernel_size=3, stride=1, padding=1))
+
 
     def reparameterize(self, mu, logvar):
         std = logvar.mul(0.5).exp_()
@@ -49,13 +49,5 @@ class VAE(nn.Module):
 
         z = self.fc_decoder(z)
         z = z.view(z.size(0), 16, self.ls, self.ls)
-
-        z = self.conv_decoder(z)
-        recon_mean = self.mean_decoder(z)
-        recon_logvar = self.logvar_decoder(z)
-
-        recon_std = recon_logvar.mul(0.5).exp_()/(2*3.14)
-        esp = torch.randn(recon_mean.size())
-
-        recon = recon_mean + recon_logvar * esp.float()
-        return recon, recon_mean, recon_logvar, mu, logvar
+        recon = self.decoder(z)
+        return recon, mu, logvar

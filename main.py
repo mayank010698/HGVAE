@@ -13,7 +13,7 @@ from plot_observables import get_energy,get_magnetisation
 
 
 def train(model,lr,bs,ls,data_path,epochs):
-    LD = LatticeDataset(data_path)
+    LD = LatticeDataset(data_path,ls)
     dataloader = DataLoader(LD, batch_size=bs, num_workers=0)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -28,21 +28,22 @@ def train(model,lr,bs,ls,data_path,epochs):
 
         for batch_idx, data in enumerate(dataloader):
             optimizer.zero_grad()
-            data = torch.Tensor(data.float()).to(device)
+            data = torch.Tensor(data.float())
         
-            recon_batch, z_mean, z_logvar, mu, logvar = model(data)
-            loss, LK, KL, EN= loss_function(recon_batch, data, z_mean, z_logvar, mu, logvar)
+            recon_batch, mu, logvar = model(data)
+            loss, recon_loss, KL= loss_function(recon_batch, data, mu, logvar)
 
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
-            recon_loss += LK.item()
+            recon_loss += recon_loss.item()
             KL_loss += KL.item()
-            EN_loss += EN.item()
+        
+            
+        print('Epoch: {} Average loss: {:.4f}  Recon Loss {:.4f}  KL Divergence {:.4f} '.format(
+            epoch, total_loss , recon_loss , KL_loss))
 
-        print('Epoch: {} Average loss: {:.4f}  Recon Loss {:.4f}  KL Divergence {:.4f} Energy loss {:.4f} '.format(
-            epoch, total_loss , recon_loss , KL_loss, EN_loss))
         
 
     print("Model trained\n")
