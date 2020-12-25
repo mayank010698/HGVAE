@@ -1,10 +1,13 @@
 import yaml
 import argparse
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torchsummary import summary
+
+from matplotlib import pyplot as plt
 
 from vae import VAE
 from LatticeDataset import LatticeDataset
@@ -31,13 +34,13 @@ def train(model,lr,bs,ls,data_path,epochs):
             data = torch.Tensor(data.float())
         
             recon_batch, mu, logvar = model(data)
-            loss, recon_loss, KL= loss_function(recon_batch, data, mu, logvar)
+            loss, L2_loss, KL= loss_function(recon_batch, data, mu, logvar)
 
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
-            recon_loss += recon_loss.item()
+            recon_loss += L2_loss.item()
             KL_loss += KL.item()
         
             
@@ -50,6 +53,32 @@ def train(model,lr,bs,ls,data_path,epochs):
     torch.save(model,"cnn_vae.pt")
 
 
+def test(data_path,ls):
+    model = torch.load("cnn_vae.pt")
+    model.eval()
+    lattices = np.load(data_path)["lattices"]
+    fig,ax = plt.subplots(1)
+    for beta in np.arange(1,19):
+        samples = lattices[beta]
+        indices = np.random.choice(1000,20)
+
+        recon_x, mu, logvar = model(torch.tensor(samples[indices].reshape(20,1,ls,ls)).float())
+        mean = mu.detach().numpy()
+        ax.scatter(mean[:,0],mean[:,1])
+    
+    plt.savefig("Latent Variables.png")
+    print(recon_x)
+    
+
+    
+    
+    
+
+    
+    
+
+
+
 def main(config_file):
     with open(config_file,"r" ) as f:
         config = yaml.load(f)
@@ -58,12 +87,15 @@ def main(config_file):
     lr = config["lr"]
     ls = config["lattice_size"]
     bs = config["bs"]
-    is_train = config["bs"]
+    is_train = config["is_train"]
+    is_test = config["is_test"]
     data_path = config["data_path"]
     model = VAE(ls)
 
     if(is_train):
         train(model,lr,bs,ls,data_path,epochs)
+    if(is_test):
+        test(data_path,ls)
 
 
 
