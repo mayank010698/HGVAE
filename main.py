@@ -67,7 +67,7 @@ def test(data_path,ls):
         ax.scatter(mean[:,0],mean[:,1])
     
     plt.savefig("Latent Variables.png")
-    print(recon_x)
+    
     
 
     
