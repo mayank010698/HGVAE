@@ -1,0 +1,21 @@
+Calculating observables for beta =  0.1
+Calculating observables for beta =  0.2
+Calculating observables for beta =  0.3
+Calculating observables for beta =  0.4
+Calculating observables for beta =  0.5
+Calculating observables for beta =  0.6
+Calculating observables for beta =  0.7
+Calculating observables for beta =  0.8
+Calculating observables for beta =  0.9
+Calculating observables for beta =  1.0
+Calculating observables for beta =  1.1
+Calculating observables for beta =  1.2
+Calculating observables for beta =  1.3
+Calculating observables for beta =  1.4
+Calculating observables for beta =  1.5
+Calculating observables for beta =  1.6
+Calculating observables for beta =  1.7
+Calculating observables for beta =  1.8
+Calculating observables for beta =  1.9
+plotting graphs
+--- 314.63585209846497 seconds ---
